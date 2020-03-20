@@ -1,3 +1,15 @@
+"""
+Module description
+
+get record in douban group
+
+author: LIHB
+email : huabing_li@zju.edu.cn
+version: v0.1
+date: 2020.3.20
+
+"""
+
 from requests_html import HTMLSession
 
 #选择中值条件的宏定义
