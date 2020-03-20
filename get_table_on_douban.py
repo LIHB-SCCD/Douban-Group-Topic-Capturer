@@ -93,7 +93,7 @@ def get_table_on_douban(group_id, page_get, stop_time,  grab_end_condition = BY_
                 continue
 
         rows = len(table);
-        for row_idx in range(2,rows):
+        for row_idx in range(1,rows):
             cols = table[row_idx].find('td');
             _topic_link = list(cols[0].links)[0];# change the set to str
             _topic_title = cols[0].text;
@@ -158,11 +158,13 @@ def is_time_eary_enough(time_target, time_now):
 
     return spt_target_time >= spt_now_time;
 
-"""
-Exmaple:
 
-[topic_title,topic_link,author_name,author_link,response_num,time] = get_table_on_douban(467221,10,"03-19 0:0",BY_TIME);
+#Exmaple:
 
+
+[topic_title,topic_link,author_name,author_link,response_num,time] = get_table_on_douban(467221,5,"03-18 0:0",BY_TIME);
+
+record = open('C:/Users/LIHB/Desktop/get_list_from_douban/record_test.txt','wb');
 
 for i in range(0,len(time)):
     strs = u'{}###{}###{}###{}###{}###{}\n'.format(topic_title[i],topic_link[i],author_name[i],author_link[i],response_num[i],time[i]);
@@ -172,4 +174,4 @@ for i in range(0,len(time)):
     record.write(strs.encode('utf-8'));
 record.close();
 
-"""
+
