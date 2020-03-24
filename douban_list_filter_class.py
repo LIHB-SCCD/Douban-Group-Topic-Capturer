@@ -170,10 +170,6 @@ class DoubanFilter(DoubanRecord):
 			return time_arr;
 
 		merged_list = output_list + old_cpyed_list;
-"""		print("###DEBUG###");
-		print(old_cpyed_list)
-		print("---------------------------------------------------------------------");
-		print(output_list)"""
 
 		merged_list.sort(key = bytime,reverse=True);
 
