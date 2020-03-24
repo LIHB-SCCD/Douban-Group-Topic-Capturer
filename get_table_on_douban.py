@@ -9,8 +9,10 @@ version: v0.1
 date: 2020.3.20
 
 """
-
+from douban_record_class import *
 from requests_html import HTMLSession
+from tkinter.messagebox import *
+import tkinter.messagebox
 
 #选择中值条件的宏定义
 BY_TIME = 0; #抓取到某个时间点
@@ -66,7 +68,7 @@ def get_table_on_douban(group_id, page_get, stop_time,  grab_end_condition = BY_
             if bad_url_cnt < BAD_URL_MAX:
                 continue
             else:
-                print("%d次尝试连接失败，抓取终止!"  %BAD_URL_MAX);
+                showinfo("ERROR","%d次尝试连接失败，抓取终止!"  %BAD_URL_MAX);
                 break;         
         else:
             # print("成功！")
@@ -76,7 +78,7 @@ def get_table_on_douban(group_id, page_get, stop_time,  grab_end_condition = BY_
                 if bad_url_cnt < BAD_URL_MAX:
                     continue
                 else:
-                    print("%d次尝试连接失败，抓取终止!"  %BAD_URL_MAX);
+                    showinfo("ERROR","访问错误,终止抓取，错误代码%d"  %page.status_code);
                     break; 
             else:
                 bad_url_cnt = 0;    
@@ -121,24 +123,119 @@ def get_table_on_douban(group_id, page_get, stop_time,  grab_end_condition = BY_
         page_time = time[-1];#the last time
         if grab_end_condition == BY_PAGES:
             if page_cnt>=page_get:
-                print("完成%d页记录抓取" %page_get);
+                print("完成对id-%s小组%d页记录抓取,获得%d条记录" %(group_id,page_get,page_idx));
                 break
             else:
                 pass
         elif grab_end_condition == BY_TIME:
             if is_time_eary_enough(stop_time,page_time):
-                print("完成截至到%s的帖子抓取" %stop_time);
+                print("完成对id-%s小组截至到%s的帖子抓取,获得%d条记录" %(group_id,stop_time,page_idx));
                 break;
             else:
                 pass
         else:
             if page_cnt>=page_get or is_time_eary_enough(stop_time,page_time):
-                print("完成抓取!\n" );
+                print("完成对id-%s小组抓取!,获得%d条记录" %(group_id,page_idx));
                 break;
             else:
                 pass
-    
-    return [topic_title,topic_link,author_name,author_link,response_num,time];
+    douban_list = [];
+    for i in range(0,len(time)):
+        douban_list.append(DoubanRecord([topic_title[i],topic_link[i],author_name[i],author_link[i],response_num[i],time[i]]));  
+    return douban_list;
+
+
+def get_history_from_file(file_path = 'record.history'):
+    try:
+        exist_record_file = open(file_path,'rb');
+    except:
+        print("ERROR IN FILE OPEN !");
+        return[];
+    else:
+        record = exist_record_file.read()
+        strs_record = record.decode('utf-8')
+        exist_record_file.close()
+        cut_record  =  strs_record.splitlines();
+        record_final = [];
+
+        for one_record in cut_record:
+            spt_record = one_record.split('#HIST#');
+
+            is_bad_author = bool(spt_record[6] == 'True');
+            has_bad_word = bool(spt_record[7] == 'True');
+            has_readed = bool(spt_record[8] == 'True');
+            #print("DEBUG: is_bad_author:%s has_bad_word:%s has_readed:%s" %(is_bad_author,has_bad_word,has_readed));
+            record = DoubanRecord(spt_record[0:6],is_bad_author,has_bad_word,has_readed);
+            record_final.append(record);
+        return record_final;
+
+def write_history_to_file(douban_list, file_path = 'record.history'):
+    try:
+        file = open(file_path,'wb');
+    except:
+        print("ERROR IN FILE OPEN !");
+        return[];
+    else:
+        for record in douban_list:
+            topic_title = record.get_topic_title();
+            author_name = record.get_author_name();
+            resp_num = record.get_response_num();
+            time = record.get_time();
+            topic_link = record.get_topic_link();
+            author_link = record.get_author_link();
+            is_bad_author = record.get_is_bad_author();
+            has_bad_word = record.get_has_bad_word();
+            has_readed = record.get_has_readed();
+
+            strs = u'{}#HIST#{}#HIST#{}#HIST#{}#HIST#{}#HIST#{}#HIST#{}#HIST#{}#HIST#{}\n'.format\
+            (topic_title,topic_link,author_name,author_link,resp_num,time,is_bad_author,has_bad_word,has_readed);
+            file.write(strs.encode('utf-8'));
+        file.close();
+
+
+def get_filter_list_from_file(file_path = 'filter.list'):
+    try:
+        exist_filter_list = open(file_path,'rb');
+    except:
+        showinfo("ERROR","ERROR IN FILE OPEN !");
+        return[];
+    else:
+        lists = exist_filter_list.read()
+        strs_lists = lists.decode('utf-8')
+        exist_filter_list.close()
+        cut_lists  =  strs_lists.splitlines();
+
+        if len(cut_lists) != 4:
+            print("BAD_FILTER_LIST,RETURN EMPTY LIST");
+            bad_author = [];
+            good_author = [];
+            bad_word = [];
+            good_word = [];
+        else:
+            bad_author = cut_lists[0].split('#FILT#');
+            good_author = cut_lists[1].split('#FILT#');
+            bad_word = cut_lists[2].split('#FILT#');
+            good_word = cut_lists[3].split('#FILT#');
+    return [bad_author,good_author,bad_word,good_word];    
+
+def write_filter_list_to_file(bad_author_list,good_author_list,bad_word_list,good_word_list,file_path = 'filter.list'):
+    try:
+        file = open(file_path,'wb');
+    except:
+        showinfo("ERROR","ERROR IN FILE OPEN !");
+        return[];
+    else:
+        gp = [bad_author_list,good_author_list,bad_word_list,good_word_list];
+        for one_list in gp:
+            dep = '#FILT#';
+            file.write(dep.encode('utf-8'))
+            for item in one_list:
+                strs = item+'#FILT#';
+                file.write(strs.encode('utf-8'));
+            dep = '\n'
+            file.write(dep.encode('utf-8'));
+        file.close();
+
 
 # a small function used above
 def is_time_eary_enough(time_target, time_now):
@@ -161,7 +258,7 @@ def is_time_eary_enough(time_target, time_now):
 
 #Exmaple:
 
-
+"""
 [topic_title,topic_link,author_name,author_link,response_num,time] = get_table_on_douban(467221,5,"03-18 0:0",BY_TIME);
 
 record = open('C:/Users/LIHB/Desktop/get_list_from_douban/record_test.txt','wb');
@@ -172,6 +269,6 @@ for i in range(0,len(time)):
     
     strs_utf8 = strs.encode('utf-8');
     record.write(strs.encode('utf-8'));
-record.close();
+record.close();"""
 
 

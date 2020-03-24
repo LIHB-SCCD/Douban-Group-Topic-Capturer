@@ -76,6 +76,10 @@ class DoubanRecord:
 
 
 
+
+
+
+
 	def set_record(self,input_record):
 		chk_valid = self.__is_valid_record(input_record);
 
@@ -149,5 +153,3 @@ class DoubanRecord:
 		    self.__time+ '\n';
 
 
-
-		
