@@ -88,7 +88,8 @@ class DoubanFilter(DoubanRecord):
 
 
 		for one_record in douban_list_in:
-			is_bad_author = one_record.get_author_name() in bad_author_list;
+			name = one_record.get_author_name();
+			is_bad_author = name in bad_author_list or name == '';
 			one_record.set_is_bad_author(is_bad_author);
 
 			has_bad_word = False;
@@ -134,7 +135,13 @@ class DoubanFilter(DoubanRecord):
 			pass
 		else:
 			print("@@ERROR:new_douban_list: %s old_douban_list: %s@@ in merge_lists: fail to filter"  %(chk_vld_1,chk_vld_2));
-			return new_douban_list;
+			if chk_vld_1 == self.__VALID:
+				return new_douban_list;
+			elif chk_vld_2 == self.__VALID:
+				return old_douban_list;
+			else:
+				return [];
+
 
 		new_author_list = [];
 		new_topic_list = [];
@@ -184,7 +191,12 @@ class DoubanFilter(DoubanRecord):
 			pass
 		else:
 			print("@@ERROR:new_douban_list: %s old_douban_list: %s@@ in merge_fresh_list_in_diff_topic: fail to filter"  %(chk_vld_1,chk_vld_2));
-			return douban_list1+douban_list2;
+			if chk_vld_1 == self.__VALID:
+				return douban_list1;
+			elif chk_vld_2 == self.__VALID:
+				return douban_list2;
+			else:
+				return [];
 		new_list1 =[];
 		new_list2 = [];
 

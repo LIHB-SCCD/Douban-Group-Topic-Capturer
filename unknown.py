@@ -152,8 +152,9 @@ class Toplevel1():
         #print(self.record_list);
 
         show_list = self.dbf.filter_by_author_and_word(self.record_list,True,True, self.__suspend_author_list);
+
     
-        for i in range(0,len(show_list)-1):
+        for i in range(0,len(show_list)):
             topic_title = show_list[i].get_topic_title();
             author_name = show_list[i].get_author_name();
             resp_num = show_list[i].get_response_num();
@@ -164,7 +165,9 @@ class Toplevel1():
             has_bad_word = show_list[i].get_has_bad_word();
             has_readed = show_list[i].get_has_readed();
 
+
             if not is_bad_author and not has_bad_word and not has_readed:
+
                 self.record_list_filt.insert("",i,text="" ,values=(topic_title,author_name,resp_num,time,topic_link,auhtor_link),tags=str(i)) #插入数据，
             elif is_bad_author:
                 self.record_list_bad_author.insert("",i,text="" ,values=(topic_title,author_name,resp_num,time,topic_link,auhtor_link),tags=str(i)) #插入数据，
@@ -198,8 +201,9 @@ class Toplevel1():
 
             old_fresh_douban_list = self.dbf.merge_fresh_list_in_diff_topic(fresh_douban_list,old_fresh_douban_list);
 
-            
+
         self.record_list = self.dbf.merge_lists(old_fresh_douban_list,self.record_list);
+        self.remove_duplic();
         #print(fresh_douban_list);
         #self.__temp_show_list = self.dbf.filter_by_author_and_word(self.record_list,True,True, self.__suspend_author_list);
 
@@ -207,6 +211,35 @@ class Toplevel1():
 
         showinfo("info","完成抓取！");
 
+    def remove_duplic(self):
+        new_list = [];
+
+        def bytime(elem):
+            time_arr = time.strptime(elem.get_time(), "%m-%d %H:%M");
+            return time_arr;
+        def bytopic(elem):
+            return elem.get_topic_title();
+
+        self.record_list.sort(key = bytopic);
+
+        the_last_topic = '';
+        the_last_author = 'qwertxvsegdewgvewf3wqf';
+        for record in self.record_list:
+            if record.get_topic_title() !=the_last_topic:
+                new_list.append(record);
+            elif the_last_author ==  record.get_author_name():
+                #print("DEBUG: find repet %s",record.get_topic_title());
+                if record.get_has_readed():
+                    new_list[-1].set_has_readed(True);
+                if record.get_has_bad_word():
+                    new_list[-1].set_has_bad_word(True);
+                if record.get_is_bad_author():
+                    new_list[-1].set_is_bad_author(True);
+            the_last_topic = record.get_topic_title();
+            the_last_author= record.get_author_name();
+        new_list.sort(key = bytime,reverse=True );
+
+        self.record_list = new_list;
 
 
 
@@ -221,16 +254,19 @@ class Toplevel1():
                                       self.dbf.get_good_author_list(),\
                                       self.dbf.get_bad_word_list(), \
                                       self.dbf.get_good_word_list());
-            if messagebox.askokcancel("中介及垃圾帖", "要保存中介和垃圾帖吗？") == False:
+
+            if messagebox.askokcancel("中介及垃圾帖", "要保存中介帖吗？") == False:
                 record_list_non = filter(lambda x:x.get_is_bad_author()==False,self.record_list)
                 list_non = list(record_list_non);
+            else:
+                list_non = self.record_list;
 
+            if messagebox.askokcancel("中介及垃圾帖", "要保存垃圾帖吗？") == False:
                 record_list_non = filter(lambda x:x.get_has_bad_word()==False,list_non)
                 list_non = list(record_list_non);
-                #print("DEBUG IN on_button_save_exit %s" %list_non);
-                write_history_to_file(list_non);
-            else:
-                write_history_to_file(self.record_list);
+
+            write_history_to_file(list_non);
+
             root.destroy()
         else:
             pass;
@@ -292,6 +328,7 @@ class Toplevel1():
     def __init__(self, top=None):
         [bad_author_list,good_author_list,bad_word_list,good_word_list] =  get_filter_list_from_file();
         self.record_list = get_history_from_file();
+        self.remove_duplic();
         self.__temp_show_list = self.record_list.copy();
         self.dbf = DoubanFilter(bad_author_list,bad_word_list,good_author_list,good_word_list);
 
@@ -857,6 +894,7 @@ class Toplevel1():
                 #webbrowser.open(item_text[4])
                 messege = "确定要将\"{}\"添加到中介名单？".format(item_text[1]);
                 if messagebox.askokcancel("添加中介", messege):
+                    print ("DEBUG'>%s<'" %item_text[1]);
                     self.dbf.set_bad_author_list([item_text[1]]);
                     self.dbf.remove_some_good_authors([item_text[1]])                 
                 #print(item_text[1])#输出所选行的第一列的值
@@ -866,8 +904,9 @@ class Toplevel1():
                 item_text = record_list.item(item,"values")
 
                 for record in self.record_list:
-                    if item_text[0] == record.get_topic_title():
+                    if item_text[0] == record.get_topic_title() and item_text[1] == record.get_author_name():
                         record.set_has_readed(True);
+                        #print ("DEBUG FINDED '%s'" %item_text[0]);
                         #print(item_text[0])
                         break;
             self.update_show_list();
