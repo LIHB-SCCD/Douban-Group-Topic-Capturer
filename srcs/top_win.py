@@ -29,26 +29,6 @@ from pop_win_class import *
 import webbrowser
 
 
-"""BAD_AUTHOR_LIST = ['不够格','宝贝呀','红色体恤','龙小贱','DK生活', '🌴张先生🌞🌞'];
-BAD_WORD_LIST = ['阿里','彭埠','滨康','江陵','滨江','单身',"萧山","江干","临平","青年","大悦","钱江","合租","主卧","仅限"];
-
-
-
-
-
-
-
-def get_three_kind_records(record_list_in):
-    dbf = DoubanFilter(BAD_AUTHOR_LIST,BAD_WORD_LIST);
-    suspend_bad_author = dbf.auto_detect_bad_author(record_list_in,dbf.BY_MIX);
-    dbf.set_bad_author_list(suspend_bad_author);
-    #dbf.set_good_word_list(["阿里","江干"]);
-    filtered_list = dbf.filter_by_author_and_word(record_list_in,False,False);
-    return filtered_list;"""
-
-
-
-
 
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
@@ -56,9 +36,9 @@ def vp_start_gui():
     root = tk.Tk()
     unknown_support.set_Tk_var()
     top = Toplevel1 (root)
-    top.update_show_list();
+    top.update_show_list()
 
-       # top.Scrolledlistbox1.insert(i,record_list[i].get_topic_title());
+       # top.Scrolledlistbox1.insert(i,record_list[i].get_topic_title())
     unknown_support.init(root, top)
     root.mainloop()
 
@@ -81,50 +61,51 @@ def destroy_Toplevel1():
 
 
 class Toplevel1():
-    dbf = None;
+    dbf = None
 
-    __suspend_author_list = [];
-    __temp_show_list = [];
+    __suspend_author_list = []
+    __temp_show_list = []
+    record_list = []
 
-    def get_last_setting(self,set_file = 'setting.set'):
+    def get_last_setting(self,set_file = '../records/setting.set'):
         try:
-            setting_file = open(set_file,'rb');
+            setting_file = open(set_file,'rb')
         except:
-            shoeinfo('ERROR',"ERROR IN FILE OPEN !");
-            return[];
+            showinfo('ERROR',"ERROR IN FILE OPEN !")
+            return[]
         else:
             settings = setting_file.read()
             strs_settings = settings.decode('utf-8')
             setting_file.close()  
                      
-            settings_list  =  strs_settings.splitlines();
+            settings_list  =  strs_settings.splitlines()
             
-        return settings_list;
+        return settings_list
 
-    def save_last_setting(self,set_file = 'setting.set'):
-        _douban_id_str = self.douban_id_input.get();
-        _stop_time = self.stop_time.get();
-        _max_pages = self.max_pages.get();
-        _is_till_last_time = str(int(self.__is_till_last_time.get()));
-        _is_max_pages_lim = str(int(self.__is_max_pages_lim.get()));
-        _max_topic = self.ety_max_topic.get();
-        _max_resp_num = self.ety_max_response.get();
-        _is_by_topic_num = str(int(self.__is_by_topic_num.get()));
-        _is_by_response_num = str(int(self.__is_by_response_num.get()));
+    def save_last_setting(self,set_file = '../records/setting.set'):
+        _douban_id_str = self.douban_id_input.get()
+        _stop_time = self.stop_time.get()
+        _max_pages = self.max_pages.get()
+        _is_till_last_time = str(int(self.__is_till_last_time.get()))
+        _is_max_pages_lim = str(int(self.__is_max_pages_lim.get()))
+        _max_topic = self.ety_max_topic.get()
+        _max_resp_num = self.ety_max_response.get()
+        _is_by_topic_num = str(int(self.__is_by_topic_num.get()))
+        _is_by_response_num = str(int(self.__is_by_response_num.get()))
 
         settings_list = [_douban_id_str,_stop_time,_max_pages,\
                          _is_till_last_time,_is_max_pages_lim,\
                          _max_topic,_max_resp_num,_is_by_topic_num,_is_by_response_num]
 
         try:
-            setting_file = open(set_file,'wb');
+            setting_file = open(set_file,'wb')
         except:
-            shoeinfo('ERROR',"ERROR IN FILE OPEN !");
-            return[];
+            showinfo('ERROR',"ERROR IN FILE OPEN !")
+            return[]
         else:
             for item in settings_list:
-                strs = item + '\n';
-                setting_file.write(strs.encode('utf-8'));
+                strs = item + '\n'
+                setting_file.write(strs.encode('utf-8'))
             setting_file.close()  
             
 
@@ -136,7 +117,7 @@ class Toplevel1():
 
 
     def update_show_list(self):
-        #清空列表
+        
         items = self.record_list_filt.get_children()
         [self.record_list_filt.delete(item) for item in items]
 
@@ -149,21 +130,21 @@ class Toplevel1():
         items = self.record_list_readed.get_children()
         [self.record_list_readed.delete(item) for item in items]
 
-        #print(self.record_list);
+        #print(self.record_list)
 
-        show_list = self.dbf.filter_by_author_and_word(self.record_list,True,True, self.__suspend_author_list);
+        show_list = self.dbf.filter_by_author_and_word(self.record_list,True,True, self.__suspend_author_list)
 
     
         for i in range(0,len(show_list)):
-            topic_title = show_list[i].get_topic_title();
-            author_name = show_list[i].get_author_name();
-            resp_num = show_list[i].get_response_num();
-            time = show_list[i].get_time();
-            topic_link = show_list[i].get_topic_link();
-            auhtor_link = show_list[i].get_author_link();
-            is_bad_author = show_list[i].get_is_bad_author();
-            has_bad_word = show_list[i].get_has_bad_word();
-            has_readed = show_list[i].get_has_readed();
+            topic_title = show_list[i].get_topic_title()
+            author_name = show_list[i].get_author_name()
+            resp_num = show_list[i].get_response_num()
+            time = show_list[i].get_time()
+            topic_link = show_list[i].get_topic_link()
+            auhtor_link = show_list[i].get_author_link()
+            is_bad_author = show_list[i].get_is_bad_author()
+            has_bad_word = show_list[i].get_has_bad_word()
+            has_readed = show_list[i].get_has_readed()
 
 
             if not is_bad_author and not has_bad_word and not has_readed:
@@ -178,68 +159,72 @@ class Toplevel1():
                     self.record_list_readed.insert("",i,text="" ,values=(topic_title,author_name,resp_num,time,topic_link,auhtor_link),tags=str(i)) #插入数据，
 
     def on_button_get_on_douban(self):
-        _douban_id_str = self.douban_id_input.get();
-        _douban_id_list = _douban_id_str.split(',');
-        _stop_time = self.stop_time.get();
-        _max_pages = int(self.max_pages.get());
+        _douban_id_str = self.douban_id_input.get()
+        _douban_id_list = _douban_id_str.split(',')
+        _stop_time = self.stop_time.get()
+        _max_pages = int(self.max_pages.get())
 
         if self.__is_till_last_time.get():
-            _stop_time = self.record_list[0].get_time();
+            _stop_time = self.record_list[0].get_time()
         if self.__is_max_pages_lim.get():
-            method = BY_MIX;
+            method = BY_MIX
         else:
-            method = BY_TIME;
+            method = BY_TIME
 
 
-        old_fresh_douban_list = [];
+        old_fresh_douban_list = []
         for _douban_id in _douban_id_list:
+            fresh_douban_list = []
+            is_getted = get_table_on_douban(douban_list =fresh_douban_list,\
+                                            group_id = _douban_id, \
+                                            page_get = _max_pages, \
+                                            stop_time = _stop_time,  \
+                                            grab_end_condition =method)
+            if is_getted:
+                old_fresh_douban_list = self.dbf.merge_fresh_list_in_diff_topic(fresh_douban_list,old_fresh_douban_list)
+            else:
+                #showinfo("Error","抓取失败")
+                break
 
-            fresh_douban_list = get_table_on_douban(group_id = _douban_id, \
-                                                    page_get = _max_pages, \
-                                                    stop_time = _stop_time,  \
-                                                    grab_end_condition =method);
 
-            old_fresh_douban_list = self.dbf.merge_fresh_list_in_diff_topic(fresh_douban_list,old_fresh_douban_list);
+        self.record_list = self.dbf.merge_lists(old_fresh_douban_list,self.record_list)
+        self.remove_duplic()
+        #print(fresh_douban_list)
+        #self.__temp_show_list = self.dbf.filter_by_author_and_word(self.record_list,True,True, self.__suspend_author_list)
 
+        self.update_show_list()
 
-        self.record_list = self.dbf.merge_lists(old_fresh_douban_list,self.record_list);
-        self.remove_duplic();
-        #print(fresh_douban_list);
-        #self.__temp_show_list = self.dbf.filter_by_author_and_word(self.record_list,True,True, self.__suspend_author_list);
-
-        self.update_show_list();
-
-        showinfo("info","完成抓取！");
+        showinfo("info","完成抓取！")
 
     def remove_duplic(self):
-        new_list = [];
+        new_list = []
 
         def bytime(elem):
-            time_arr = time.strptime(elem.get_time(), "%m-%d %H:%M");
-            return time_arr;
+            time_arr = time.strptime(elem.get_time(), "%m-%d %H:%M")
+            return time_arr
         def bytopic(elem):
-            return elem.get_topic_title();
+            return elem.get_topic_title()
 
-        self.record_list.sort(key = bytopic);
+        self.record_list.sort(key = bytopic)
 
-        the_last_topic = '';
-        the_last_author = 'qwertxvsegdewgvewf3wqf';
+        the_last_topic = ''
+        the_last_author = 'qwertxvsegdewgvewf3wqf'
         for record in self.record_list:
             if record.get_topic_title() !=the_last_topic:
-                new_list.append(record);
+                new_list.append(record)
             elif the_last_author ==  record.get_author_name():
-                #print("DEBUG: find repet %s",record.get_topic_title());
+                #print("DEBUG: find repet %s",record.get_topic_title())
                 if record.get_has_readed():
-                    new_list[-1].set_has_readed(True);
+                    new_list[-1].set_has_readed(True)
                 if record.get_has_bad_word():
-                    new_list[-1].set_has_bad_word(True);
+                    new_list[-1].set_has_bad_word(True)
                 if record.get_is_bad_author():
-                    new_list[-1].set_is_bad_author(True);
-            the_last_topic = record.get_topic_title();
-            the_last_author= record.get_author_name();
-        new_list.sort(key = bytime,reverse=True );
+                    new_list[-1].set_is_bad_author(True)
+            the_last_topic = record.get_topic_title()
+            the_last_author= record.get_author_name()
+        new_list.sort(key = bytime,reverse=True )
 
-        self.record_list = new_list;
+        self.record_list = new_list
 
 
 
@@ -249,76 +234,73 @@ class Toplevel1():
 
             self.save_last_setting()
             
-            self.dbf.set_bad_author_list(self.__suspend_author_list);
+            self.dbf.set_bad_author_list(self.__suspend_author_list)
             write_filter_list_to_file(self.dbf.get_bad_author_list(),\
                                       self.dbf.get_good_author_list(),\
                                       self.dbf.get_bad_word_list(), \
-                                      self.dbf.get_good_word_list());
+                                      self.dbf.get_good_word_list())
 
             if messagebox.askokcancel("中介及垃圾帖", "要保存中介帖吗？") == False:
                 record_list_non = filter(lambda x:x.get_is_bad_author()==False,self.record_list)
-                list_non = list(record_list_non);
+                list_non = list(record_list_non)
             else:
-                list_non = self.record_list;
+                list_non = self.record_list
 
             if messagebox.askokcancel("中介及垃圾帖", "要保存垃圾帖吗？") == False:
                 record_list_non = filter(lambda x:x.get_has_bad_word()==False,list_non)
-                list_non = list(record_list_non);
+                list_non = list(record_list_non)
 
-            write_history_to_file(list_non);
+            write_history_to_file(list_non)
 
             root.destroy()
         else:
-            pass;
+            pass
 
     def on_button_load_in_file(self):
-        _record_list = get_history_from_file();
-        self.record_list = self.dbf.merge_lists(self.record_list,_record_list);
-        self.update_show_list();
-        pass;
+        _record_list = get_history_from_file()
+        self.record_list = self.dbf.merge_lists(self.record_list,_record_list)
+        self.update_show_list()
+        pass
 
     def on_button_get_filter_records(self):
-        max_topic = int(self.ety_max_topic.get());
-        max_resp_num = int (self.ety_max_response.get());
+        max_topic = int(self.ety_max_topic.get())
+        max_resp_num = int (self.ety_max_response.get())
 
         if self.__is_by_topic_num.get() and self.__is_by_response_num.get():
-            method = self.dbf.BY_MIX;       
+            method = self.dbf.BY_MIX       
         elif self.__is_by_topic_num.get():
-            method = self.dbf.BY_AUTHOR_REPET;
+            method = self.dbf.BY_AUTHOR_REPET
         elif self.__is_by_response_num.get():
-            method = self.dbf.BY_RESP_NUM;
+            method = self.dbf.BY_RESP_NUM
         else:
-            suspend_bad_author = [];
-            self.update_show_list();  
-            return;
+            suspend_bad_author = []
+            self.update_show_list()  
+            return
 
-        self.__suspend_author_list = self.dbf.auto_detect_bad_author(self.record_list,method,max_topic,max_resp_num);
-        #print("on_button_get_filter_records DEBUG bad author num: %s" %len(self.__suspend_author_list));
-        #self.__temp_show_list = self.dbf.filter_by_author_and_word(self.__temp_show_list,True,True, self.__suspend_author_list);
-        #self.dbf.set_bad_author_list(suspend_bad_author);
-        self.update_show_list();            
+        self.__suspend_author_list = self.dbf.auto_detect_bad_author(self.record_list,method,max_topic,max_resp_num)
+        #print("on_button_get_filter_records DEBUG bad author num: %s" %len(self.__suspend_author_list))
+        #self.__temp_show_list = self.dbf.filter_by_author_and_word(self.__temp_show_list,True,True, self.__suspend_author_list)
+        #self.dbf.set_bad_author_list(suspend_bad_author)
+        self.update_show_list()            
       
 
 
     def on_button_show_add_bad_author(self):
-        list_win = pop_win(self,'bad_author_list');
-        #self.wait_window(list_win) # 这一句很重要！！！
-        pass;      
+        list_win = pop_win(self,'bad_author_list')
+        pass      
 
     def on_button_show_add_bad_word(self):
-        list_win = pop_win(self,'bad_word_list');
-        #self.wait_window(list_win) # 这一句很重要！！！
-        pass;   
+        list_win = pop_win(self,'bad_word_list')
+        pass   
 
     def on_button_show_add_good_word(self):
-        list_win = pop_win(self,'good_word_list');
-        #self.wait_window(list_win) # 这一句很重要！！！
-        pass;  
+        list_win = pop_win(self,'good_word_list')
+        pass  
 
     def on_button_show_add_good_author(self):
-        list_win = pop_win(self,'good_author_list');
-        #self.wait_window(list_win) # 这一句很重要！！！
-        pass; 
+        list_win = pop_win(self,'good_author_list')
+
+        pass 
 
 
 
@@ -326,21 +308,22 @@ class Toplevel1():
 
 
     def __init__(self, top=None):
-        [bad_author_list,good_author_list,bad_word_list,good_word_list] =  get_filter_list_from_file();
-        self.record_list = get_history_from_file();
-        self.remove_duplic();
-        self.__temp_show_list = self.record_list.copy();
-        self.dbf = DoubanFilter(bad_author_list,bad_word_list,good_author_list,good_word_list);
+        [bad_author_list,good_author_list,bad_word_list,good_word_list] =  get_filter_list_from_file()
+        self.record_list = get_history_from_file("../records/record.history")
 
-        self.__is_till_last_time = tk.BooleanVar();
-        self.__is_max_pages_lim = tk.BooleanVar();
-        self.__is_by_topic_num = tk.BooleanVar();
-        self.__is_by_response_num = tk.BooleanVar();
+        self.remove_duplic()
+        self.__temp_show_list = self.record_list.copy()
+        self.dbf = DoubanFilter(bad_author_list,bad_word_list,good_author_list,good_word_list)
 
-        setting_list = self.get_last_setting();
+        self.__is_till_last_time = tk.BooleanVar()
+        self.__is_max_pages_lim = tk.BooleanVar()
+        self.__is_by_topic_num = tk.BooleanVar()
+        self.__is_by_response_num = tk.BooleanVar()
+
+        setting_list = self.get_last_setting()
 
 
-        root.protocol("WM_DELETE_WINDOW", self.on_button_save_exit);
+        root.protocol("WM_DELETE_WINDOW", self.on_button_save_exit)
 
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
@@ -405,10 +388,10 @@ class Toplevel1():
         self.record_list_bad_word = ScrolledTreeView(self.Topics_bad_word)
         self.record_list_readed = ScrolledTreeView(self.Topics_readed)
 
-        self.set_record_list_style(self.record_list_filt);
-        self.set_record_list_style(self.record_list_bad_author);
-        self.set_record_list_style(self.record_list_bad_word);
-        self.set_record_list_style(self.record_list_readed);
+        self.set_record_list_style(self.record_list_filt)
+        self.set_record_list_style(self.record_list_bad_author)
+        self.set_record_list_style(self.record_list_bad_word)
+        self.set_record_list_style(self.record_list_readed)
 
 
         self.grabing_setting = tk.LabelFrame(top)
@@ -487,7 +470,7 @@ class Toplevel1():
         self.isTillLastTime.configure(text='''抓取至上次时间''')
         self.isTillLastTime.configure(variable = self.__is_till_last_time)
         if int(setting_list[3]) == 1:
-            self.isTillLastTime.select();
+            self.isTillLastTime.select()
         else:
             pass
 
@@ -506,7 +489,7 @@ class Toplevel1():
         self.isMaxPageLim.configure(text='''限制最大抓取页数''')
         self.isMaxPageLim.configure(variable = self.__is_max_pages_lim)
         if int(setting_list[4]) == 1:
-            self.isMaxPageLim.select();
+            self.isMaxPageLim.select()
 
         self.filter_setting = tk.LabelFrame(top)
         self.filter_setting.place(relx=0.662, rely=0.31, relheight=0.34
@@ -614,7 +597,7 @@ class Toplevel1():
         self.ety_max_topic.configure(font="TkFixedFont")
         self.ety_max_topic.configure(foreground="#000000")
         self.ety_max_topic.configure(insertbackground="black")
-        self.ety_max_topic.insert(0,setting_list[5]);
+        self.ety_max_topic.insert(0,setting_list[5])
 
         self.Label4 = tk.Label(self.filter_setting)
         self.Label4.place(relx=0.023, rely=0.687, height=26, width=106
@@ -638,7 +621,7 @@ class Toplevel1():
         self.isByTopicNum.configure(text='''使用发帖数限制''')
         self.isByTopicNum.configure(variable=self.__is_by_topic_num)
         if int(setting_list[7]) == 1:
-            self.isByTopicNum.select();
+            self.isByTopicNum.select()
 
         self.ety_max_response = tk.Entry(self.filter_setting)
         self.ety_max_response.place(relx=0.299, rely=0.79, height=24
@@ -648,7 +631,7 @@ class Toplevel1():
         self.ety_max_response.configure(font="TkFixedFont")
         self.ety_max_response.configure(foreground="#000000")
         self.ety_max_response.configure(insertbackground="black")
-        self.ety_max_response.insert(0,setting_list[6]);
+        self.ety_max_response.insert(0,setting_list[6])
 
         self.Label4_1 = tk.Label(self.filter_setting)
         self.Label4_1.place(relx=0.023, rely=0.79, height=26, width=106
@@ -676,7 +659,7 @@ class Toplevel1():
         self.isByResposeNum.configure(text='''使用回复数限制''')
         self.isByResposeNum.configure(variable=self.__is_by_response_num)
         if int(setting_list[8]) == 1:
-            self.isByResposeNum.select();
+            self.isByResposeNum.select()
         self.load_in_file = tk.Button(top,command = self.on_button_load_in_file)
         self.load_in_file.place(relx=0.662, rely=0.661, height=40, width=435)
         self.load_in_file.configure(activebackground="#ececec")
@@ -739,11 +722,11 @@ class Toplevel1():
 
     
     def right_sel_pop(self,event, *args, **kwargs):
-        right_sel_menu = tk.Menu(self.record_list_filt,tearoff = 0);
-        right_sel_menu.add_command(label= "作者加入黑名单",command=self.add_bad_author);
+        right_sel_menu = tk.Menu(self.record_list_filt,tearoff = 0)
+        right_sel_menu.add_command(label= "作者加入黑名单",command=self.add_bad_author)
         right_sel_menu.add_separator()
-        right_sel_menu.add_command(label= "标记为已读",command=None);
-        right_sel_menu.post(event.x_root, event.y_root);
+        right_sel_menu.add_command(label= "标记为已读",command=None)
+        right_sel_menu.post(event.x_root, event.y_root)
 
         
 
@@ -780,7 +763,7 @@ class Toplevel1():
     def set_record_list_style(self,record_list):
         record_list.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
         record_list.configure(columns="topic author response time topic_link author_link")
-        record_list.configure(displaycolumns = "topic author response time");
+        record_list.configure(displaycolumns = "topic author response time")
 
         # build_treeview_support starting.
         record_list.heading("#0",text="Tree")
@@ -836,7 +819,7 @@ class Toplevel1():
                 #print(k)
             tv.heading(col, command=lambda: treeview_sort_column(tv, col, not reverse))#重写标题，使之成为再点倒序的标题
 
-        columns = ("topic","author","response","time","topic_link","author_link");
+        columns = ("topic","author","response","time","topic_link","author_link")
 
         for col in columns:#给所有标题加（循环上边的“手工”）
             record_list.heading(col, text=col, command=lambda _col=col: treeview_sort_column(record_list, _col, False))
@@ -844,44 +827,44 @@ class Toplevel1():
 
 
         def on_right_click(event, *args, **kwargs):
-            right_sel_menu = tk.Menu(record_list,tearoff = 0);
-            right_sel_menu.add_command(label= "这人是中介",command=add_bad_author);
+            right_sel_menu = tk.Menu(record_list,tearoff = 0)
+            right_sel_menu.add_command(label= "这人是中介",command=add_bad_author)
             right_sel_menu.add_separator()
-            right_sel_menu.add_command(label= "这人不是中介",command=remove_bad_author);
+            right_sel_menu.add_command(label= "这人不是中介",command=remove_bad_author)
             right_sel_menu.add_separator()
-            right_sel_menu.add_command(label= "标记为已读",command=marked_as_readed);
+            right_sel_menu.add_command(label= "标记为已读",command=marked_as_readed)
 
-            right_sel_menu.post(event.x_root, event.y_root);
+            right_sel_menu.post(event.x_root, event.y_root)
 
 
         def remove_bad_author():
             for item in record_list.selection():
                 item_text = record_list.item(item,"values")
                 #webbrowser.open(item_text[4])
-                messege = "确定要将\"{}\"移除中介名单？".format(item_text[1]);
+                messege = "确定要将\"{}\"移除中介名单？".format(item_text[1])
                 if messagebox.askokcancel("移除中介", messege):
-                    self.dbf.set_good_author_list([item_text[1]]);
-                    self.dbf.remove_some_bad_authors([item_text[1]]);
+                    self.dbf.set_good_author_list([item_text[1]])
+                    self.dbf.remove_some_bad_authors([item_text[1]])
                 #print(item_text[1])#输出所选行的第一列的值
-                self.update_show_list();            
-            pass;
+                self.update_show_list()            
+            pass
 
         def on_double_Click(event):#单击
             for item in record_list.selection():
                 item_text = record_list.item(item,"values")
 
-                #record_list.item(item,foreground = "red");
+                #record_list.item(item,foreground = "red")
                 webbrowser.open(item_text[4])
 
                 for record in self.record_list:
                     if item_text[0] == record.get_topic_title():
-                        record.set_has_readed(True);
+                        record.set_has_readed(True)
                         #print("DEBUG on_double_Click: SETTED")                  
-                        break;
+                        break
 
                 str0 = 'rd---'+item_text[0]+'--rd'
-                changed_ = (str0,) + item_text[1:];
-                cRowId = ttk.Treeview.focus(record_list);
+                changed_ = (str0,) + item_text[1:]
+                cRowId = ttk.Treeview.focus(record_list)
                 dicTemp = ttk.Treeview.item( record_list, cRowId )               
                 ttk.Treeview.item( record_list, cRowId, values = changed_)
 
@@ -892,28 +875,32 @@ class Toplevel1():
             for item in record_list.selection():
                 item_text = record_list.item(item,"values")
                 #webbrowser.open(item_text[4])
-                messege = "确定要将\"{}\"添加到中介名单？".format(item_text[1]);
+                messege = "确定要将\"{}\"添加到中介名单？".format(item_text[1])
                 if messagebox.askokcancel("添加中介", messege):
-                    print ("DEBUG'>%s<'" %item_text[1]);
-                    self.dbf.set_bad_author_list([item_text[1]]);
+                    print ("DEBUG'>%s<'" %item_text[1])
+                    self.dbf.set_bad_author_list([item_text[1]])
                     self.dbf.remove_some_good_authors([item_text[1]])                 
                 #print(item_text[1])#输出所选行的第一列的值
-                self.update_show_list();
+                self.update_show_list()
         def marked_as_readed():
             for item in record_list.selection():
                 item_text = record_list.item(item,"values")
 
                 for record in self.record_list:
                     if item_text[0] == record.get_topic_title() and item_text[1] == record.get_author_name():
-                        record.set_has_readed(True);
-                        #print ("DEBUG FINDED '%s'" %item_text[0]);
+                        record.set_has_readed(True)
+                        #print ("DEBUG FINDED '%s'" %item_text[0])
                         #print(item_text[0])
-                        break;
-            self.update_show_list();
+                        break
+            self.update_show_list()
             pass
 
-        record_list.bind("<Button-3>", on_right_click);
+        def on_enters(event):
+            print("TODO")
+
+        record_list.bind("<Button-3>", on_right_click)
         record_list.bind('<Double-Button-1>', on_double_Click)
+        record_list.bind('<Shift-KeyPress-S>',on_enters)
 
 
 
